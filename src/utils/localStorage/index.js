@@ -20,6 +20,6 @@ export const getData = async key => {
 };
 
 
-export const apiURL = 'https://alihsankerinci.zavalabs.com/api/';
+export const apiURL = 'https://infowks.zavalabs.com/api/';
 export const wenURL = apiURL.replace("api/", "");
 

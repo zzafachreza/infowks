@@ -36,7 +36,13 @@ export default function Splash({ navigation }) {
 
   useEffect(() => {
     setTimeout(() => {
-      navigation.navigate('Home')
+      getData('user').then(res => {
+        if (!res) {
+          navigation.navigate('Login')
+        } else {
+          navigation.navigate('Home')
+        }
+      })
     }, 1500)
   }, []);
 
@@ -45,7 +51,7 @@ export default function Splash({ navigation }) {
     <View
       style={{
         flex: 1,
-        backgroundColor: colors.primary,
+        backgroundColor: colors.white,
       }}>
       <View style={{
         flex: 1,
@@ -64,29 +70,31 @@ export default function Splash({ navigation }) {
           }
         />
         <Text style={{
-          fontSize: windowWidth / 15,
-          color: colors.white,
-          fontFamily: fonts.secondary[600]
-        }}>AL-IHSAN KERINCI</Text>
+          fontSize: windowWidth / 9,
+          color: colors.primary,
+          fontFamily: fonts.secondary[800]
+        }}>INFO WKS</Text>
 
 
       </View>
+
+      <ActivityIndicator size="large" color={colors.primary} />
 
       <View style={{
         padding: 10,
       }}>
         <Text style={{
-          fontSize: windowWidth / 30,
-          color: colors.white,
+          fontSize: windowWidth / 20,
+          color: colors.primary,
           textAlign: 'center',
           fontFamily: fonts.secondary[600]
-        }}>DKM Masjid Al Ihsan</Text>
+        }}>PT Wali Karunia Sejahtera</Text>
         <Text style={{
           fontSize: windowWidth / 35,
-          color: colors.white,
+          color: colors.primary,
           textAlign: 'center',
           fontFamily: fonts.secondary[400]
-        }}>Jl. Kerinci X No. 8 Kelurahan Gunung, Kebayoran Baru Jakarta Selatan</Text>
+        }}>Lembah Cinere Indah Jln Kelapa Sawit Blok E No 130 Cinere, Depok Indonesia 16514</Text>
       </View>
     </View>
   );

@@ -9,7 +9,7 @@ import { apiURL, storeData } from '../../utils/localStorage';
 export default function ({ navigation }) {
 
   const [kirim, setKirim] = useState({
-    username: null,
+    email: null,
     password: null
   });
   const [loading, setLoading] = useState(false);
@@ -19,10 +19,10 @@ export default function ({ navigation }) {
   const masuk = () => {
 
 
-    if (kirim.username == null && kirim.password == null) {
-      alert('username dan Passwoord tidak boleh kosong !');
-    } else if (kirim.username == null) {
-      alert('username tidak boleh kosong !');
+    if (kirim.email == null && kirim.password == null) {
+      alert('email dan Passwoord tidak boleh kosong !');
+    } else if (kirim.email == null) {
+      alert('email tidak boleh kosong !');
     } else if (kirim.password == null) {
       alert('Passwoord tidak boleh kosong !');
     } else {
@@ -77,13 +77,6 @@ export default function ({ navigation }) {
           />
 
 
-          <Text style={{
-            marginTop: '2%',
-            color: colors.primary,
-            fontFamily: fonts.secondary[600],
-            fontSize: windowWidth / 30,
-            marginBottom: 10,
-          }}>Catatan Piutang</Text>
 
         </View>
 
@@ -91,13 +84,13 @@ export default function ({ navigation }) {
       </View>
       <MyGap jarak={10} />
       <View style={{ padding: 10, marginVertical: 10, flex: 1 }}>
-        <MyInput label="Username" onChangeText={val => setKirim({
+        <MyInput label="Email" onChangeText={val => setKirim({
           ...kirim,
-          username: val
+          email: val
         })}
 
 
-          iconname="at" placeholder="Masukan username Anda" />
+          iconname="mail" placeholder="Masukan email Anda" />
         <MyGap jarak={20} />
         <MyInput
           onChangeText={val => setKirim({
@@ -110,23 +103,29 @@ export default function ({ navigation }) {
           placeholder="Masukan password Anda"
         />
         <MyGap jarak={40} />
-        {!loading && <MyButton
-          onPress={masuk}
-          title="Masuk"
-          warna={colors.primary}
-          Icons="log-in-outline"
-        />}
-        <TouchableOpacity onPress={() => navigation.navigate('Register')} style={{
-          padding: 10,
-          justifyContent: 'center',
-          alignItems: 'center'
-        }}><Text style={{
-          fontSize: windowWidth / 28,
-          marginTop: 10,
-          fontFamily: fonts.primary[600],
-          textAlign: 'center',
-          color: colors.primary
-        }}>Daftar</Text></TouchableOpacity>
+        {!loading &&
+
+          <>
+            <MyButton
+              onPress={masuk}
+              title="Masuk"
+              warna={colors.primary}
+              Icons="log-in-outline"
+            />
+            <TouchableOpacity onPress={() => navigation.navigate('Register')} style={{
+              padding: 10,
+              justifyContent: 'center',
+              alignItems: 'center'
+            }}><Text style={{
+              fontSize: windowWidth / 28,
+              marginTop: 10,
+              fontFamily: fonts.primary[600],
+              textAlign: 'center',
+              color: colors.primary
+            }}>Daftar Sekarang</Text></TouchableOpacity>
+          </>
+        }
+
       </View>
       {loading && <View style={{
         flex: 1,

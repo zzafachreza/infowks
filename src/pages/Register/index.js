@@ -1,89 +1,229 @@
-import { Alert, StyleSheet, Text, View, Image, ActivityIndicator } from 'react-native'
-import React, { useState, useEffect } from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { apiURL, getData, storeData } from '../../utils/localStorage';
-import { colors, fonts, windowHeight, windowWidth } from '../../utils';
-import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
-import { showMessage } from 'react-native-flash-message';
-import Sound from 'react-native-sound';
-import { Icon } from 'react-native-elements/dist/icons/Icon';
-import { MyButton, MyGap, MyInput } from '../../components';
-import { useIsFocused } from '@react-navigation/native';
+import React, { useState } from 'react';
+import {
+    StyleSheet,
+    Text,
+    Button,
+    View,
+    Image,
+    ScrollView,
+    ImageBackground,
+    Dimensions,
+    Switch,
+    SafeAreaView,
+    ActivityIndicator,
+} from 'react-native';
+import { colors } from '../../utils/colors';
+import { fonts } from '../../utils/fonts';
+import { MyInput, MyGap, MyButton, MyPicker } from '../../components';
 import axios from 'axios';
-import DatePicker from 'react-native-datepicker'
-import ZavalabsScanner from 'react-native-zavalabs-scanner'
-export default function Register({ navigation, route }) {
+import { showMessage } from 'react-native-flash-message';
+import { apiURL } from '../../utils/localStorage';
 
+export default function Register({ navigation }) {
+    const windowWidth = Dimensions.get('window').width;
+    const windowHeight = Dimensions.get('window').height;
     const [loading, setLoading] = useState(false);
+    const [valid, setValid] = useState(false);
+    const [isEnabled, setIsEnabled] = useState(false);
+    const toggleSwitch = () => setIsEnabled(previousState => !previousState);
 
-    const [kirim, setKirim] = useState({
-        fid_acara: route.params.fid_acara,
-        pin: '',
-    });
-
-
-    useEffect(() => {
-        openScanner();
-    }, [])
-
-    const openScanner = () => {
-        ZavalabsScanner.showBarcodeReader(result => {
-
-            if (result == null) {
-
-            } else {
-                console.log('barcode : ', result);
-                // setLoading(true);
-                setTimeout(() => {
-                    axios.post(apiURL + '1add.php', {
-                        fid_acara: route.params.fid_acara,
-                        pin: result,
-                    }).then(res => {
-                        console.log(res.data);
-                        setLoading(false);
-                        Alert.alert('Al Ihsan Kerinci', 'Data berhasil disimpan !')
-                        console.log(kirim);
-                        navigation.goBack();
-                    })
-                }, 1200)
-            }
-
-
-        });
+    const validate = text => {
+        // console.log(text);
+        let reg = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+        if (reg.test(text) === false) {
+            // console.log('nama_lengkap is Not Correct');
+            setData({ ...data, nama_lengkap: text });
+            setValid(false);
+            return false;
+        } else {
+            setData({ ...data, nama_lengkap: text });
+            setValid(true);
+            // console.log('nama_lengkap is Correct');
+        }
     };
 
+    const [data, setData] = useState({
+        password: '',
+        email: '',
+        nama_lengkap: '',
+        alamat: ''
+    });
 
+    const simpan = () => {
+        if (
+            data.nama_lengkap.length === 0 &&
+            data.telepon.length === 0 &&
+            data.alamat.length === 0 &&
+            data.email.length === 0 &&
+            data.password.length === 0
 
+        ) {
+            showMessage({
+                message: 'Maaf Semua Field Harus Di isi !',
+            });
+        } else if (data.nama_lengkap.length === 0) {
+            showMessage({
+                message: 'Maaf nama lengkap masih kosong !',
+            });
+        }
+        else if (data.telepon.length === 0) {
+            showMessage({
+                message: 'Maaf telepon masih kosong !',
+            });
+        } else if (data.password.length === 0) {
+            showMessage({
+                message: 'Maaf Password masih kosong !',
+            });
+        } else {
+            setLoading(true);
+            console.log(data);
+            axios
+                .post(apiURL + 'register.php', data)
+                .then(res => {
+                    console.warn(res.data);
+                    let err = res.data.split('#');
 
-    const sendServer = () => {
-        console.log(kirim);
-        // setLoading(true);
-        setTimeout(() => {
-            axios.post(apiURL + '1add.php', {
-                fid_acara: route.params.fid_acara,
-                pin: result,
-            }).then(res => {
-                console.log(res.data);
-                setLoading(false);
-                Alert.alert('Al Ihsan Kerinci', 'Data berhasil disimpan !')
-                console.log(kirim);
-                navigation.goBack();
-            })
-        }, 1200)
-    }
-
+                    // console.log(err[0]);
+                    if (err[0] == 50) {
+                        setTimeout(() => {
+                            setLoading(false);
+                            showMessage({
+                                message: err[1],
+                                type: 'danger',
+                            });
+                        }, 1200);
+                    } else {
+                        setTimeout(() => {
+                            navigation.replace('Login');
+                            showMessage({
+                                message: 'Pendaftaran user berhasil',
+                                type: 'success',
+                            });
+                        }, 1200);
+                    }
+                });
+        }
+    };
     return (
-        <SafeAreaView style={{
-            flex: 1,
-            backgroundColor: colors.white,
-            padding: 10,
-        }}>
+        <ImageBackground
+            style={{
+                flex: 1,
+                backgroundColor: colors.white,
+                padding: 10,
+            }}>
+
+            {/* <Switch onValueChange={toggleSwitch} value={isEnabled} /> */}
+            <ScrollView showsVerticalScrollIndicator={false} style={styles.page}>
 
 
 
 
-        </SafeAreaView>
-    )
+
+                <MyGap jarak={10} />
+                <MyInput
+                    placeholder="Masukan email"
+                    label="Email"
+                    iconname="mail"
+                    value={data.email}
+                    onChangeText={value =>
+                        setData({
+                            ...data,
+                            email: value,
+                        })
+                    }
+                />
+
+                <MyGap jarak={10} />
+                <MyInput
+                    placeholder="Masukan nama lengkap"
+                    label="Nama Lengkap"
+                    iconname="person"
+                    value={data.nama_lengkap}
+                    onChangeText={value =>
+                        setData({
+                            ...data,
+                            nama_lengkap: value,
+                        })
+                    }
+                />
+
+                <MyGap jarak={10} />
+                <MyInput
+                    placeholder="Masukan nomor telepon"
+                    label="Telepon"
+                    iconname="call"
+                    keyboardType="phone-pad"
+                    value={data.telepon}
+                    onChangeText={value =>
+                        setData({
+                            ...data,
+                            telepon: value,
+                        })
+                    }
+                />
+
+                <MyGap jarak={10} />
+                <MyInput
+
+                    label="Alamat"
+                    iconname="map"
+                    placeholder="Masukan alamat lengkap"
+                    value={data.alamat}
+                    onChangeText={value =>
+                        setData({
+                            ...data,
+                            alamat: value,
+                        })
+                    }
+                />
+
+
+                <MyGap jarak={10} />
+                <MyInput
+                    placeholder="Masukan password"
+                    label="Password"
+                    iconname="key"
+                    secureTextEntry
+                    value={data.password}
+                    onChangeText={value =>
+                        setData({
+                            ...data,
+                            password: value,
+                        })
+                    }
+                />
+                <MyGap jarak={20} />
+                {!loading &&
+                    <MyButton
+
+                        warna={colors.primary}
+                        title="Daftar"
+                        Icons="log-in"
+                        onPress={simpan}
+                    />
+                }
+                <MyGap jarak={20} />
+
+                {loading && <View style={{
+                    flex: 1,
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }}>
+                    <ActivityIndicator color={colors.primary} size="large" />
+                </View>}
+            </ScrollView>
+
+        </ImageBackground>
+    );
 }
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+    page: {
+        flex: 1,
+        padding: 10,
+    },
+    image: {
+        width: 620 / 4,
+        height: 160 / 4,
+    },
+});

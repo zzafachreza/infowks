@@ -1,4 +1,4 @@
-import { Alert, StyleSheet, Text, View, Image, FlatList } from 'react-native'
+import { Alert, StyleSheet, Text, View, Image, FlatList, ActivityIndicator } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { apiURL, getData, storeData } from '../../utils/localStorage';
@@ -17,7 +17,9 @@ import 'intl/locale-data/jsonp/en';
 export default function Home({ navigation }) {
 
   const [user, setUser] = useState({});
-  const [data, setData] = useState([]);
+  const [data, setData] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
   const isFocused = useIsFocused();
   useEffect(() => {
     if (isFocused) {
@@ -29,57 +31,84 @@ export default function Home({ navigation }) {
   const __getTransaction = () => {
     getData('user').then(res => {
       setUser(res);
-      axios.post(apiURL + '1data_acara.php').then(x => {
-        console.log(x.data);
-        setData(x.data);
-      })
     })
   }
 
-  const __renderItem = ({ item }) => {
+  const MyListData = ({ lab, val }) => {
     return (
-      <TouchableOpacity onPress={() => navigation.navigate('SCek', item)} style={{
-        margin: 5,
-        padding: 10,
+      <View style={{
         flexDirection: 'row',
+        marginHorizontal: 10,
         borderBottomWidth: 1,
-        borderBottomColor: colors.zavalabs
+        paddingVertical: 6,
+        borderBottomColor: colors.zavalabs,
       }}>
-
-        <View style={{
-          flex: 1,
-        }}>
-          <Text style={{
-            fontFamily: fonts.secondary[600],
-            fontSize: windowWidth / 30,
-            color: colors.primary,
-          }}>{item.acara}</Text>
+        <View style={{ flex: 0.7, }}>
           <Text style={{
             fontFamily: fonts.secondary[400],
             fontSize: windowWidth / 28,
-            color: colors.black,
-          }}>{item.tanggal}</Text>
+            color: colors.black
+          }}>{lab}</Text>
         </View>
-
-        <View style={{
-          justifyContent: 'center',
-          alignItems: 'center'
-        }}>
-          <Icon type='ionicon' name='search' size={windowWidth / 25} color={colors.primary} />
+        <View style={{ flex: 0.2, }}>
+          <Text style={{
+            fontFamily: fonts.secondary[400],
+            fontSize: windowWidth / 28,
+            color: colors.black
+          }}>:</Text>
         </View>
-      </TouchableOpacity>
+        <View style={{ flex: 1 }}>
+          <Text style={{
+            fontFamily: fonts.secondary[600],
+            fontSize: windowWidth / 28,
+            color: colors.black
+          }}>{val}</Text>
+        </View>
+      </View>
     )
   }
 
+  const [key, setKey] = useState('');
 
-  const filterItems = (key, data) => {
-    var query = key.toLowerCase();
-    return data.filter(function (item) {
-      return item.toLowerCase().indexOf(query) >= 0;
+  const [formula, setFormula] = useState({
+    a8: 0,
+    a9: 0,
+    a10: 0,
+    a11: 0,
+    a12: 0,
+    a13: 0,
+    a14: 0,
+    a15: 0,
+    a16: 0
+  })
+
+  const filterData = () => {
+    setLoading(true);
+    axios.post(apiURL + 'part.php', {
+      part_number: key
+    }).then(res => {
+      setLoading(false);
+      console.log(res.data);
+      if (res.data.kode == 50) {
+        setOpen(false);
+        showMessage({
+          message: 'Part Number tidak ditemukan !',
+          type: 'danger',
+        })
+      } else {
+        setOpen(true);
+        console.log(res.data);
+        setData(res.data);
+
+
+        setFormula({
+          ...formula,
+          a8: res.data.price - (res.data.price * (res.data.discount / 100)),
+          a9: (res.data.price - (res.data.price * (res.data.discount / 100))) * 15000,
+        })
+      }
     })
   }
-
-
 
   return (
     <SafeAreaView style={{
@@ -90,7 +119,7 @@ export default function Home({ navigation }) {
       <View style={{
         backgroundColor: colors.primary,
         paddingHorizontal: 10,
-        paddingVertical: 20,
+        paddingVertical: 10,
       }}>
 
         <View style={{
@@ -103,46 +132,83 @@ export default function Home({ navigation }) {
               fontFamily: fonts.secondary[400],
               fontSize: windowWidth / 28,
               color: colors.white
-            }}>Selamat datang,</Text>
+            }}>Selamat datang, {user.nama_lengkap}</Text>
             <Text style={{
               fontFamily: fonts.secondary[600],
               fontSize: windowWidth / 28,
               color: colors.white
-            }}>Al Ihsan Kerinci</Text>
+            }}>PT Wali Karunia Sejahtera</Text>
           </View>
 
-          <View>
-            <Image source={require('../../assets/logo.png')} style={{
-              width: 60,
-              height: 60
-            }} />
-          </View>
+          <TouchableOpacity onPress={() => navigation.navigate('GetStarted')} style={{
+            justifyContent: 'center',
+            alignItems: 'center',
+            borderRadius: 30
+          }}>
+            <Icon type='ionicon' name='person' color={colors.white} />
+            {/* <Text style={{
+              fontFamily: fonts.secondary[400],
+              fontSize: windowWidth / 28,
+              color: colors.white
+            }}>Informasi Akun</Text> */}
+          </TouchableOpacity>
+
         </View>
 
 
       </View>
+      {/* body */}
+      <View style={{
+        padding: 10,
+        flexDirection: 'row'
+      }}>
 
-      <Image source={require('../../assets/slide.png')} style={{
-        width: windowWidth,
-        height: 250,
-      }} />
-      <Text style={{
-        fontFamily: fonts.secondary[600],
-        textAlign: 'center',
-        fontSize: windowWidth / 25,
-        color: colors.black,
-        marginVertical: 10,
-        marginHorizontal: 10,
-      }}>DAFTAR ACARA</Text>
-      <FlatList data={data} renderItem={__renderItem} />
+        <View style={{
+          flex: 1,
+        }}>
+          <MyInput value={key} onChangeText={x => setKey(x)} autoFocus label="Enter Part Number" placeholder="please enter part number" iconname="file-tray-stacked-outline" />
+        </View>
+        <View style={{
+          paddingVertical: 25,
+          paddingLeft: 5,
+        }}>
+          <TouchableOpacity onPress={filterData} style={{
+            width: 60,
+            borderRadius: 10,
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: 50,
+            backgroundColor: colors.primary,
+          }}>
+            <Icon type='ionicon' name='search' color={colors.white} />
+          </TouchableOpacity>
+        </View>
 
+      </View>
 
+      {loading && <ActivityIndicator size="large" color={colors.primary} />}
+      {open && <>
 
+        <MyListData lab="Part No" val={data.part_number} />
+        <MyListData lab="Description" val={data.part_description} />
+        <MyListData lab="Division" val={data.division} />
+        <MyListData lab="List Price" val={data.price} />
+        <MyListData lab="Discount" val={`${data.discount}%`} />
+        <MyListData lab="Price After Discount" val={`$${formula.a8}`} />
+        <MyListData lab="Harga" val={`Rp${new Intl.NumberFormat().format(formula.a8 * 15000)}`} />
+        <MyListData lab="Harga + BM 10%" val={`Rp${new Intl.NumberFormat().format((formula.a8 * 15000) + ((formula.a8 * 15000) * 10 / 100))}`} />
+        <MyListData lab="Pph 2,5%" val={`Rp${new Intl.NumberFormat().format(((formula.a8 * 15000) + ((formula.a8 * 15000) * 10 / 100)) * 2.5 / 100)}`} />
+        <MyListData lab="Ppn 11%" val={`Rp${new Intl.NumberFormat().format(((formula.a8 * 15000) + ((formula.a8 * 15000) * 10 / 100)) * 11 / 100)}`} />
 
+        <MyListData lab="Ongkir 15%" val={`Rp${new Intl.NumberFormat().format((formula.a8 * 15000) * 15 / 100)}`} />
 
+        <MyListData lab="Harga Modal" val={`Rp${new Intl.NumberFormat().format(((formula.a8 * 15000) + ((formula.a8 * 15000) * 10 / 100)) + (((formula.a8 * 15000) + ((formula.a8 * 15000) * 10 / 100)) * 2.5 / 100) + ((formula.a8 * 15000) * 15 / 100))}`} />
+        <MyListData lab="Harga Jual" val={`Rp${new Intl.NumberFormat().format((((formula.a8 * 15000) + ((formula.a8 * 15000) * 10 / 100)) + (((formula.a8 * 15000) + ((formula.a8 * 15000) * 10 / 100)) * 2.5 / 100) + ((formula.a8 * 15000) * 15 / 100)) + (((formula.a8 * 15000) + (((formula.a8 * 15000) * 10 / 100)) + (((formula.a8 * 15000) + ((formula.a8 * 15000) * 10 / 100)) * 2.5 / 100) + ((formula.a8 * 15000) * 15 / 100)) * 50 / 100))}`} />
 
+        <MyListData lab="Harga Nett" val={`Rp${new Intl.NumberFormat().format((((formula.a8 * 15000) + ((formula.a8 * 15000) * 10 / 100)) + (((formula.a8 * 15000) + ((formula.a8 * 15000) * 10 / 100)) * 2.5 / 100) + ((formula.a8 * 15000) * 15 / 100)) + (((formula.a8 * 15000) + (((formula.a8 * 15000) * 10 / 100)) + (((formula.a8 * 15000) + ((formula.a8 * 15000) * 10 / 100)) * 2.5 / 100) + ((formula.a8 * 15000) * 15 / 100)) * 30 / 100))}`} />
 
-
+        <MyListData lab="Stock" val={0} />
+      </>}
 
     </SafeAreaView >
   )

@@ -69,7 +69,7 @@ export default function Router() {
         component={Register}
         options={{
           headerShown: true,
-          headerTitle: 'Scan Hadir',
+          headerTitle: 'Daftar Pengguna',
           headerStyle: {
             backgroundColor: colors.primary,
           },
