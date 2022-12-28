@@ -1,4 +1,4 @@
-import { Alert, StyleSheet, Text, View, Image, FlatList } from 'react-native'
+import { Alert, StyleSheet, Text, View, Image, FlatList, PermissionsAndroid } from 'react-native'
 import React, { useState, useEffect, useRef } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { apiURL, getData, storeData } from '../../utils/localStorage';
@@ -15,6 +15,8 @@ import 'intl';
 import 'intl/locale-data/jsonp/en';
 import ViewShot from "react-native-view-shot";
 import Share from 'react-native-share';
+import RNFetchBlob from 'rn-fetch-blob';
+
 
 export default function TimList({ navigation }) {
     const [data, setData] = useState([]);
@@ -30,7 +32,7 @@ export default function TimList({ navigation }) {
 
 
     const __getTransaction = () => {
-        axios.post(apiURL + 'tim_data.php').then(rz => {
+        axios.post(apiURL + 'slider_data.php').then(rz => {
             setData(rz.data);
             console.log(rz.data)
         })
@@ -39,7 +41,7 @@ export default function TimList({ navigation }) {
 
 
     const __getTransactionKey = (x) => {
-        axios.post(apiURL + 'tim_data.php', {
+        axios.post(apiURL + 'slider_data.php', {
             key: x
         }).then(rz => {
             setData(rz.data);
@@ -53,9 +55,11 @@ export default function TimList({ navigation }) {
         return (
             <View style={{
                 padding: 10,
+                borderBottomWidth: 1,
+                borderBottomColor: colors.zavalabs,
                 marginVertical: 5,
                 flex: 1,
-                backgroundColor: colors.secondary,
+                backgroundColor: colors.white,
                 flexDirection: 'row'
             }}>
                 <Text style={{
@@ -63,51 +67,36 @@ export default function TimList({ navigation }) {
                     fontFamily: fonts.secondary[600],
                     fontSize: windowWidth / 25,
                     color: colors.primary,
-                }}>{item.nama_tim}</Text>
+                }}>{item.name}</Text>
 
                 <View style={{
                     flexDirection: 'row'
                 }}>
 
-                    <TouchableOpacity onPress={() => navigation.navigate('TimDetail', item)} style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        marginRight: 10,
-                        backgroundColor: colors.primary,
-                        padding: 10,
-                        borderRadius: 5,
-                    }}>
-                        <Text style={{
-                            color: colors.white,
-                            fontFamily: fonts.secondary[600],
-                            fontSize: windowWidth / 28,
-                        }}>Detail</Text>
 
-                    </TouchableOpacity>
                     <TouchableOpacity onPress={() => {
-                        Alert.alert('Aspivo', 'Apakah kamu yakin akan hapus tim ' + item.nama_tim + '?', [
+
+                        PermissionsAndroid.request(
+                            PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
                             {
-                                text: 'Batal',
-                                type: 'cancel'
+                                title: 'storage title',
+                                message: 'storage_permission',
                             },
-                            {
-                                text: 'Hapus',
-                                type: 'default',
-                                onPress: () => {
-                                    axios.post(apiURL + 'tim_delete.php', {
-                                        id_tim: item.id
-                                    }).then(res => {
-                                        __getTransaction();
-                                        showMessage({
-                                            type: 'success',
-                                            message: 'Tim ' + item.nama_tim + ' berhasil dihapus !'
-                                        })
-                                    })
-                                }
+                        ).then(granted => {
+                            if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+                                //Once user grant the permission start downloading
+                                console.log('Storage Permission Granted.');
+                                downloadHistory(item.image, item.name);
+                                // Linking.openURL(i.url)
+                            } else {
+                                //If permission denied then show alert 'Storage Permission 
+                                Alert.alert('storage_permission');
                             }
-                        ])
+                        });
+
+
                     }}>
-                        <Icon type='ionicon' size={windowWidth / 15} name='trash-outline' color={colors.danger} />
+                        <Icon type='ionicon' size={windowWidth / 15} name='download-outline' color={colors.secondary} />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -115,14 +104,57 @@ export default function TimList({ navigation }) {
     }
 
 
+
+    const downloadHistory = async (url, nama_file, exe) => {
+
+        const { config, fs } = RNFetchBlob;
+        let PictureDir = fs.dirs.DownloadDir;
+        let date = new Date();
+        let options = {
+            fileCache: true,
+            addAndroidDownloads: {
+                //Related to the Android only
+                useDownloadManager: true,
+                notification: true,
+                path:
+                    PictureDir +
+                    '/' + nama_file,
+                description: nama_file,
+            },
+        };
+        config(options)
+            .fetch('GET', url)
+            .then((res) => {
+                // success
+                Share.open({
+                    url: 'file://' + PictureDir +
+                        '/' + nama_file
+                })
+                    .then((res) => {
+                        console.log(res);
+                    })
+                    .catch((err) => {
+                        err && console.log(err);
+                    });
+                showMessage({
+                    message: 'File berhasil di unduh',
+                    type: 'success'
+                })
+            })
+            .catch((error) => {
+                // error
+                console.warn(error)
+            });
+
+    }
+
     return (
         <SafeAreaView style={{
             flex: 1,
-            backgroundColor: colors.primary,
+            backgroundColor: colors.white,
             padding: 10,
         }}>
-            <MyInput onChangeText={(x) => __getTransactionKey(x)} label="Masukan kata kunci" placeholder="Cari nama tim" />
-            <MyGap jarak={20} />
+
             <FlatList data={data} renderItem={__renderItem} />
 
         </SafeAreaView>

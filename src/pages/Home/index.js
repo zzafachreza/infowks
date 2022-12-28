@@ -1,5 +1,5 @@
-import { Alert, StyleSheet, Text, View, Image, FlatList, ActivityIndicator } from 'react-native'
-import React, { useState, useEffect } from 'react'
+import { Alert, StyleSheet, Text, View, Image, FlatList, ActivityIndicator, Dimensions } from 'react-native'
+import React, { useState, useEffect, useRef } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { apiURL, getData, storeData } from '../../utils/localStorage';
 import { colors, fonts, windowHeight, windowWidth } from '../../utils';
@@ -7,26 +7,27 @@ import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { showMessage } from 'react-native-flash-message';
 import Sound from 'react-native-sound';
 import { Icon } from 'react-native-elements/dist/icons/Icon';
-import { MyButton, MyInput } from '../../components';
+import { MyButton, MyGap, MyInput } from '../../components';
 import { useIsFocused } from '@react-navigation/native';
 import axios from 'axios';
 import { FloatingAction } from "react-native-floating-action";
 import 'intl';
 import 'intl/locale-data/jsonp/en';
+import Carousel, { ParallaxImage, Pagination } from 'react-native-snap-carousel';
+import { SliderBox } from "react-native-image-slider-box";
+const ENTRIES1 = ['https://wks.co.id/wp-content/uploads/2020/09/20843.png', 'https://wks.co.id/wp-content/uploads/2021/02/Home-Cover-2-1.jpg', 'https://wks.co.id/wp-content/uploads/2020/09/Roof-Appilcation.jpg'];
 
 export default function Home({ navigation }) {
 
+
+
   const [user, setUser] = useState({});
-  const [data, setData] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [open, setOpen] = useState(false);
   const isFocused = useIsFocused();
   useEffect(() => {
-    if (isFocused) {
-      __getTransaction();
-    }
 
-  }, [isFocused]);
+    __getTransaction();
+
+  }, []);
 
   const __getTransaction = () => {
     getData('user').then(res => {
@@ -34,81 +35,47 @@ export default function Home({ navigation }) {
     })
   }
 
-  const MyListData = ({ lab, val }) => {
+
+  const [entries, setEntries] = useState([]);
+  const carouselRef = useRef(null);
+
+  const goForward = () => {
+    carouselRef.current.snapToNext();
+  };
+
+
+
+  const MyMenu = ({ img, judul, onPress }) => {
     return (
-      <View style={{
-        flexDirection: 'row',
-        marginHorizontal: 10,
-        borderBottomWidth: 1,
-        paddingVertical: 6,
-        borderBottomColor: colors.zavalabs,
-      }}>
-        <View style={{ flex: 0.7, }}>
-          <Text style={{
-            fontFamily: fonts.secondary[400],
-            fontSize: windowWidth / 28,
-            color: colors.black
-          }}>{lab}</Text>
+      <TouchableOpacity onPress={onPress} >
+        <View style={{
+          width: windowWidth / 3.5,
+          borderWidth: 0,
+          borderColor: colors.primary,
+          backgroundColor: colors.primary,
+          height: windowHeight / 6,
+          justifyContent: 'center',
+          borderRadius: 10,
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}>
+          <Image source={img} style={{
+            width: windowHeight / 4,
+            height: windowHeight / 8,
+            resizeMode: 'contain'
+          }} />
         </View>
-        <View style={{ flex: 0.2, }}>
-          <Text style={{
-            fontFamily: fonts.secondary[400],
-            fontSize: windowWidth / 28,
-            color: colors.black
-          }}>:</Text>
-        </View>
-        <View style={{ flex: 1 }}>
-          <Text style={{
-            fontFamily: fonts.secondary[600],
-            fontSize: windowWidth / 28,
-            color: colors.black
-          }}>{val}</Text>
-        </View>
-      </View>
+        <Text style={{
+          marginTop: 5,
+          fontFamily: fonts.secondary[600],
+          color: colors.black,
+          textAlign: 'center'
+
+        }}>{judul}</Text>
+      </TouchableOpacity>
     )
   }
 
-  const [key, setKey] = useState('');
-
-  const [formula, setFormula] = useState({
-    a8: 0,
-    a9: 0,
-    a10: 0,
-    a11: 0,
-    a12: 0,
-    a13: 0,
-    a14: 0,
-    a15: 0,
-    a16: 0
-  })
-
-  const filterData = () => {
-    setLoading(true);
-    axios.post(apiURL + 'part.php', {
-      part_number: key
-    }).then(res => {
-      setLoading(false);
-      console.log(res.data);
-      if (res.data.kode == 50) {
-        setOpen(false);
-        showMessage({
-          message: 'Part Number tidak ditemukan !',
-          type: 'danger',
-        })
-      } else {
-        setOpen(true);
-        console.log(res.data);
-        setData(res.data);
-
-
-        setFormula({
-          ...formula,
-          a8: res.data.price - (res.data.price * (res.data.discount / 100)),
-          a9: (res.data.price - (res.data.price * (res.data.discount / 100))) * 15000,
-        })
-      }
-    })
-  }
 
   return (
     <SafeAreaView style={{
@@ -146,81 +113,69 @@ export default function Home({ navigation }) {
             borderRadius: 30
           }}>
             <Icon type='ionicon' name='person' color={colors.white} />
-            {/* <Text style={{
-              fontFamily: fonts.secondary[400],
-              fontSize: windowWidth / 28,
-              color: colors.white
-            }}>Informasi Akun</Text> */}
+
           </TouchableOpacity>
 
         </View>
 
 
       </View>
-      {/* body */}
+      <SliderBox
+        images={ENTRIES1}
+        sliderBoxHeight={240}
+        onCurrentImagePressed={index => console.warn(`image ${index} pressed`)}
+        dotColor={colors.white}
+        inactiveDotColor="#90A4AE"
+      />
+
       <View style={{
-        padding: 10,
-        flexDirection: 'row'
+        flex: 1,
+        justifyContent: 'center'
       }}>
-
         <View style={{
-          flex: 1,
+          marginVertical: 10,
+          flexDirection: 'row',
+          padding: 10,
+          justifyContent: 'space-around'
         }}>
-          <MyInput value={key} onChangeText={x => setKey(x)} autoFocus label="Enter Part Number" placeholder="please enter part number" iconname="file-tray-stacked-outline" />
-        </View>
-        <View style={{
-          paddingVertical: 25,
-          paddingLeft: 5,
-        }}>
-          <TouchableOpacity onPress={filterData} style={{
-            width: 60,
-            borderRadius: 10,
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: 50,
-            backgroundColor: colors.primary,
-          }}>
-            <Icon type='ionicon' name='search' color={colors.white} />
-          </TouchableOpacity>
+          <MyMenu onPress={() => navigation.navigate('SCek')} img={require('../../assets/A1.png')} judul="Cek Harga dan Stock" />
+          <MyMenu img={require('../../assets/A2.png')} judul="Report Visit" />
+          <MyMenu img={require('../../assets/A3.png')} judul="Report Service" />
         </View>
 
+        <View style={{
+          marginVertical: 10,
+          flexDirection: 'row',
+          padding: 10,
+          justifyContent: 'space-around'
+        }}>
+          <MyMenu img={require('../../assets/A4.png')} judul="Buat Penawaran" />
+          <MyMenu onPress={() => navigation.navigate('TimList')} img={require('../../assets/A5.png')} judul="Brosur Download" />
+          <MyMenu onPress={() => navigation.navigate('GetStarted')} img={require('../../assets/A6.png')} judul="Informasi Akun" />
+        </View>
       </View>
 
-      {loading && <ActivityIndicator size="large" color={colors.primary} />}
-      {open && <>
-
-        <MyListData lab="Part No" val={data.part_number} />
-        <MyListData lab="Description" val={data.part_description} />
-        <MyListData lab="Division" val={data.division} />
-        <MyListData lab="List Price" val={data.price} />
-        <MyListData lab="Discount" val={`${data.discount}%`} />
-        <MyListData lab="Price After Discount" val={`$${formula.a8}`} />
-        <MyListData lab="Harga" val={`Rp${new Intl.NumberFormat().format(formula.a8 * 15000)}`} />
-        <MyListData lab="Harga + BM 10%" val={`Rp${new Intl.NumberFormat().format((formula.a8 * 15000) + ((formula.a8 * 15000) * 10 / 100))}`} />
-        <MyListData lab="Pph 2,5%" val={`Rp${new Intl.NumberFormat().format(((formula.a8 * 15000) + ((formula.a8 * 15000) * 10 / 100)) * 2.5 / 100)}`} />
-        <MyListData lab="Ppn 11%" val={`Rp${new Intl.NumberFormat().format(((formula.a8 * 15000) + ((formula.a8 * 15000) * 10 / 100)) * 11 / 100)}`} />
-
-        <MyListData lab="Ongkir 15%" val={`Rp${new Intl.NumberFormat().format((formula.a8 * 15000) * 15 / 100)}`} />
-
-        <MyListData lab="Harga Modal" val={`Rp${new Intl.NumberFormat().format(((formula.a8 * 15000) + ((formula.a8 * 15000) * 10 / 100)) + (((formula.a8 * 15000) + ((formula.a8 * 15000) * 10 / 100)) * 2.5 / 100) + ((formula.a8 * 15000) * 15 / 100))}`} />
-        <MyListData lab="Harga Jual" val={`Rp${new Intl.NumberFormat().format((((formula.a8 * 15000) + ((formula.a8 * 15000) * 10 / 100)) + (((formula.a8 * 15000) + ((formula.a8 * 15000) * 10 / 100)) * 2.5 / 100) + ((formula.a8 * 15000) * 15 / 100)) + (((formula.a8 * 15000) + (((formula.a8 * 15000) * 10 / 100)) + (((formula.a8 * 15000) + ((formula.a8 * 15000) * 10 / 100)) * 2.5 / 100) + ((formula.a8 * 15000) * 15 / 100)) * 50 / 100))}`} />
-
-        <MyListData lab="Harga Nett" val={`Rp${new Intl.NumberFormat().format((((formula.a8 * 15000) + ((formula.a8 * 15000) * 10 / 100)) + (((formula.a8 * 15000) + ((formula.a8 * 15000) * 10 / 100)) * 2.5 / 100) + ((formula.a8 * 15000) * 15 / 100)) + (((formula.a8 * 15000) + (((formula.a8 * 15000) * 10 / 100)) + (((formula.a8 * 15000) + ((formula.a8 * 15000) * 10 / 100)) * 2.5 / 100) + ((formula.a8 * 15000) * 15 / 100)) * 30 / 100))}`} />
-
-        <MyListData lab="Stock" val={0} />
-      </>}
 
     </SafeAreaView >
   )
 }
 
 const styles = StyleSheet.create({
-  judul: {
-    fontFamily: fonts.secondary[600],
-    fontSize: windowWidth / 35
+  container: {
+    flex: 1,
   },
   item: {
-    fontFamily: fonts.secondary[400],
-    fontSize: windowWidth / 35
-  }
-})
+    width: windowHeight,
+    height: windowWidth / 2,
+  },
+  imageContainer: {
+    flex: 1,
+    marginBottom: 1, // Prevent a random Android rendering issue
+    backgroundColor: 'white',
+    borderRadius: 8,
+  },
+  image: {
+    ...StyleSheet.absoluteFillObject,
+    resizeMode: 'cover',
+  },
+});

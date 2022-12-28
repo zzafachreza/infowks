@@ -33,6 +33,7 @@
     "react-native-floating-action": "^1.22.0",
     "react-native-gesture-handler": "^1.8.0",
     "react-native-image-picker": "^3.6.0",
+    "react-native-image-slider-box": "^2.0.7",
     "react-native-material-selectize": "^1.18.0",
     "react-native-orientation-locker": "^1.5.0",
     "react-native-pdf": "^6.6.2",
@@ -48,7 +49,8 @@
     "react-native-view-shot": "^3.5.0",
     "react-native-webview": "^11.15.0",
     "react-native-youtube-iframe": "^2.2.2",
-    "react-native-zavalabs-scanner": "^1.0.1"
+    "react-native-zavalabs-scanner": "^1.0.1",
+    "rn-fetch-blob": "^0.12.0"
   },
   "devDependencies": {
     "@babel/core": "7.20.5",

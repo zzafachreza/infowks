@@ -117,7 +117,7 @@ export default function Router() {
         component={SCek}
         options={{
           headerShown: true,
-          headerTitle: 'DETAIL ACARA',
+          headerTitle: 'CEK HARGA DAN STOCK',
           headerStyle: {
             backgroundColor: colors.primary,
           },
@@ -194,11 +194,11 @@ export default function Router() {
         component={TimList}
         options={{
           headerShown: true,
-          headerTitle: 'List Tim',
+          headerTitle: 'Brosur Download',
           headerStyle: {
-            backgroundColor: colors.secondary,
+            backgroundColor: colors.primary,
           },
-          headerTintColor: colors.primary,
+          headerTintColor: colors.white,
         }}
       />
 
