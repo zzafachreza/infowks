@@ -62,12 +62,26 @@ export default function TimList({ navigation }) {
                 backgroundColor: colors.white,
                 flexDirection: 'row'
             }}>
-                <Text style={{
+                <View style={{
                     flex: 1,
-                    fontFamily: fonts.secondary[600],
-                    fontSize: windowWidth / 25,
-                    color: colors.primary,
-                }}>{item.name}</Text>
+                }}>
+                    <Text style={{
+
+                        fontFamily: fonts.secondary[600],
+                        fontSize: windowWidth / 25,
+                        color: colors.primary,
+                    }}>{item.name}</Text>
+                    <Text style={{
+                        fontFamily: fonts.secondary[600],
+                        fontSize: windowWidth / 35,
+                        backgroundColor: colors.danger,
+                        color: colors.white,
+                        width: 45,
+                        borderRadius: 10,
+                        height: 15,
+                        textAlign: 'center',
+                    }}>{item.exe}</Text>
+                </View>
 
                 <View style={{
                     flexDirection: 'row'
@@ -86,7 +100,7 @@ export default function TimList({ navigation }) {
                             if (granted === PermissionsAndroid.RESULTS.GRANTED) {
                                 //Once user grant the permission start downloading
                                 console.log('Storage Permission Granted.');
-                                downloadHistory(item.image, item.name);
+                                downloadHistory(item.image, item.name, item.exe);
                                 // Linking.openURL(i.url)
                             } else {
                                 //If permission denied then show alert 'Storage Permission 
@@ -118,7 +132,7 @@ export default function TimList({ navigation }) {
                 notification: true,
                 path:
                     PictureDir +
-                    '/' + nama_file,
+                    '/' + nama_file + '.' + exe,
                 description: nama_file,
             },
         };

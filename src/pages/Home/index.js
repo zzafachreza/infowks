@@ -53,15 +53,15 @@ export default function Home({ navigation }) {
           borderWidth: 0,
           borderColor: colors.primary,
           backgroundColor: colors.primary,
-          height: windowHeight / 6,
+          height: windowHeight / 7,
           justifyContent: 'center',
           borderRadius: 10,
           justifyContent: 'center',
           alignItems: 'center'
         }}>
           <Image source={img} style={{
-            width: windowHeight / 4,
-            height: windowHeight / 8,
+            width: windowHeight / 6,
+            height: windowHeight / 12,
             resizeMode: 'contain'
           }} />
         </View>

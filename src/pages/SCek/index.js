@@ -156,7 +156,7 @@ export default function SCek({ navigation }) {
                     <MyListData lab="Part No" val={data.part_number} />
                     <MyListData lab="Description" val={data.part_description} />
                     <MyListData lab="Division" val={data.division} />
-                    <MyListData lab="Aplication" val={data.application} />
+                    {/*  <MyListData lab="Aplication" val={data.application} />
                     <MyListData lab="List Price" val={`${data.price}`} />
                     <MyListData lab="Qty" val={`${data.qty}`} />
                     <MyListData lab="Price x Qty" val={`$${data.priceqty}`} />
@@ -169,7 +169,7 @@ export default function SCek({ navigation }) {
 
                     <MyListData lab="Ongkir 15%" val={`Rp${new Intl.NumberFormat().format(data.a13)}`} />
 
-                    <MyListData lab="Harga Modal" val={`Rp${new Intl.NumberFormat().format(data.a14)}`} />
+                    <MyListData lab="Harga Modal" val={`Rp${new Intl.NumberFormat().format(data.a14)}`} /> */}
                     <MyListData lab="Harga Jual" val={`Rp${new Intl.NumberFormat().format(data.a15)}`} />
 
                     <MyListData lab="Harga Nett" val={`Rp${new Intl.NumberFormat().format(data.a16)}`} />

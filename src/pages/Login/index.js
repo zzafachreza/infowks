@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, Image, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, View, Image, ScrollView, ActivityIndicator, TouchableOpacity, BackHandler, Alert } from 'react-native';
 import { fonts, windowWidth, colors } from '../../utils';
 import { MyInput, MyGap, MyButton } from '../../components';
 import axios from 'axios';
@@ -54,6 +54,28 @@ export default function ({ navigation }) {
 
 
   }
+
+  useEffect(() => {
+
+    const backAction = () => {
+      Alert.alert("Info Wks", "Apakah kamu yakin akan keluar aplikasi ?", [
+        {
+          text: "Cancel",
+          onPress: () => null,
+          style: "cancel"
+        },
+        { text: "YES", onPress: () => BackHandler.exitApp() }
+      ]);
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      backAction
+    );
+
+    return () => backHandler.remove();
+  }, [])
 
   return (
     <ScrollView style={{ padding: 10, flex: 1, backgroundColor: colors.white }}>
