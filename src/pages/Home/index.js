@@ -47,14 +47,15 @@ export default function Home({ navigation }) {
 
   const MyMenu = ({ img, judul, onPress }) => {
     return (
-      <TouchableOpacity onPress={onPress} >
+      <TouchableOpacity onPress={onPress} style={{
+        width: windowWidth / 3.5,
+      }} >
         <View style={{
           width: windowWidth / 3.5,
           borderWidth: 0,
           borderColor: colors.primary,
           backgroundColor: colors.primary,
           height: windowHeight / 7,
-          justifyContent: 'center',
           borderRadius: 10,
           justifyContent: 'center',
           alignItems: 'center'
