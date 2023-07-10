@@ -38,9 +38,9 @@ export default function Splash({ navigation }) {
     setTimeout(() => {
       getData('user').then(res => {
         if (!res) {
-          navigation.navigate('Login')
+          navigation.replace('Login')
         } else {
-          navigation.navigate('Home')
+          navigation.replace('Home')
         }
       })
     }, 1500)
